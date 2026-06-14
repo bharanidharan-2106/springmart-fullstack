@@ -1,0 +1,19 @@
+<section class="featured-categories py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="display-6 fw-bold text-dark">Shop by Category</h2>
+      <div class="heading-underline mx-auto mt-2"></div>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-6 col-md-4 col-lg-2" *ngFor="let category of categories">
+        <a href="#" class="category-card text-decoration-none d-block bg-white rounded-4 p-4 text-center shadow-sm">
+          <div class="icon-wrapper mb-3 mx-auto d-flex align-items-center justify-content-center rounded-circle">
+            <mat-icon class="category-icon">{{category.icon}}</mat-icon>
+          </div>
+          <h3 class="h6 fw-semibold text-dark mb-0">{{category.name}}</h3>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

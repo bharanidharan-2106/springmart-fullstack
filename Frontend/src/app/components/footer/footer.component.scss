@@ -1,0 +1,33 @@
+.bg-dark {
+  background-color: var(--secondary-color-2) !important;
+}
+
+.text-danger {
+  color: var(--secondary-color-1) !important;
+}
+
+.tracking-wider {
+  letter-spacing: 1px;
+}
+
+.footer-link {
+  display: inline-block;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    color: var(--secondary-color-1) !important;
+    transform: translateX(5px);
+  }
+}
+
+.social-icon {
+  width: 40px;
+  height: 40px;
+  text-decoration: none;
+  
+  &:hover {
+    background-color: var(--secondary-color-1) !important;
+    color: var(--primary-color) !important;
+    transform: translateY(-3px);
+  }
+}

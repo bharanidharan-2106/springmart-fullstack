@@ -1,0 +1,48 @@
+.promotional-banner {
+  .banner-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, rgba(255, 107, 107, 0.15) 100%);
+    z-index: 0;
+  }
+}
+
+.text-danger {
+  color: var(--secondary-color-1) !important;
+}
+
+.btn-dark {
+  background-color: var(--secondary-color-2);
+  border-color: var(--secondary-color-2);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: var(--secondary-color-1);
+    border-color: var(--secondary-color-1);
+  }
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+.sale-badge {
+  width: 160px;
+  height: 160px;
+  animation: pulse 2s infinite;
+  border: 8px solid rgba(255, 107, 107, 0.1);
+}
+
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+  70% { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 0 20px rgba(255, 107, 107, 0); }
+  100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+}

@@ -1,0 +1,19 @@
+# Eclipse workspace
+.metadata/
+
+# VS Code
+.vscode/
+
+# Spring Boot / Maven
+**/target/
+
+# Node
+Frontend/node_modules/
+Frontend/dist/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

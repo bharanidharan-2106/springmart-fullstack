@@ -1,0 +1,26 @@
+<section class="testimonials py-5 bg-light">
+  <div class="container py-4">
+    <div class="text-center mb-5">
+      <h2 class="display-6 fw-bold text-dark">What Our Customers Say</h2>
+      <div class="heading-underline mx-auto mt-2"></div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-6 col-lg-4" *ngFor="let testimonial of testimonials">
+        <div class="testimonial-card card border-0 shadow-sm rounded-4 h-100 p-4 bg-white transition-all">
+          <div class="d-flex align-items-center mb-4">
+            <img [src]="testimonial.image" [alt]="testimonial.name" class="rounded-circle me-3 border border-2 border-light shadow-sm" width="60" height="60" />
+            <div>
+              <h4 class="h6 fw-bold text-dark mb-1">{{testimonial.name}}</h4>
+              <div class="stars text-warning d-flex">
+                <mat-icon *ngFor="let star of getStars(testimonial.rating)" class="star-icon small">star</mat-icon>
+              </div>
+            </div>
+          </div>
+          <p class="card-text text-muted fst-italic mb-0">"{{testimonial.text}}"</p>
+          <mat-icon class="quote-icon position-absolute opacity-10">format_quote</mat-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

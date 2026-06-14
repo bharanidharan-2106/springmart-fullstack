@@ -1,0 +1,21 @@
+.feature-card {
+  transition: all 0.3s ease;
+  
+  .icon-circle {
+    width: 80px;
+    height: 80px;
+    transition: all 0.3s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-5px);
+    background-color: #fff !important;
+    border-color: rgba(255, 107, 107, 0.2) !important;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+    
+    .icon-circle {
+      transform: scale(1.1);
+      box-shadow: 0 10px 20px rgba(255, 107, 107, 0.1) !important;
+    }
+  }
+}

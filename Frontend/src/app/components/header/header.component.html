@@ -1,0 +1,39 @@
+<header class="header sticky-top bg-white">
+  <div class="container d-flex align-items-center justify-content-between py-3">
+    <!-- Brand -->
+    <a routerLink="/" class="brand d-flex align-items-center gap-2">
+      <mat-icon class="brand-icon">shopping_cart</mat-icon>
+      <span class="brand-name">SpringMart</span>
+    </a>
+
+    <!-- Search Bar -->
+    <div class="search-bar-container d-none d-md-flex align-items-center flex-grow-1 mx-4">
+      <div class="search-wrapper w-100 position-relative">
+        <mat-icon class="search-icon position-absolute">search</mat-icon>
+        <input 
+          type="text" 
+          class="form-control search-input" 
+          placeholder="Search for products, brands and categories..."
+        />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="header-actions d-flex gap-3 align-items-center">
+      <ng-container *ngIf="!currentUser; else userSessionTemplate">
+        <button class="btn btn-login" routerLink="/login">Login</button>
+        <button class="btn btn-signup" routerLink="/signup">Sign Up</button>
+      </ng-container>
+      <ng-template #userSessionTemplate>
+        <div class="d-flex align-items-center gap-3">
+          <div class="user-info-badge d-flex align-items-center gap-2 px-3 py-2 bg-light border rounded-pill">
+            <mat-icon class="text-danger fs-5 d-flex align-items-center">account_circle</mat-icon>
+            <span class="user-name text-dark fw-semibold small">Hi, {{ currentUser?.firstName }}</span>
+            <span class="badge bg-dark text-white rounded-pill px-2 py-1" style="font-size: 0.7rem;">{{ currentUser?.role }}</span>
+          </div>
+          <button class="btn btn-login py-2 px-3 border border-dark" (click)="logout()">Logout</button>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</header>
