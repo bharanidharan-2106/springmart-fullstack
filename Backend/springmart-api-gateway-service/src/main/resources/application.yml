@@ -1,9 +1,8 @@
-
 server:
   port: 8080
 spring:
   application:
-    name: springmart-api-gateway
+    name: SPRINGMART-API-GATEWAY
   cloud:
     gateway:
       discovery:

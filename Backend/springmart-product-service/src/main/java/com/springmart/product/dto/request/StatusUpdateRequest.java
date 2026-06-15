@@ -1,0 +1,16 @@
+package com.springmart.product.dto.request;
+
+import com.springmart.product.enums.ProductStatus;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class StatusUpdateRequest {
+
+    @NotNull(message = "Status is required")
+    private ProductStatus status;
+}

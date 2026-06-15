@@ -19,8 +19,7 @@ export class SignupComponent {
   errorMessage: string | null = null;
   roles = [
     { value: 'Customer', label: 'Customer', icon: 'person', desc: 'Shop and track orders' },
-    { value: 'Merchant', label: 'Merchant', icon: 'storefront', desc: 'Sell and manage products' },
-    { value: 'Admin', label: 'Administrator', icon: 'admin_panel_settings', desc: 'Oversee store activities' }
+    { value: 'Merchant', label: 'Merchant', icon: 'storefront', desc: 'Sell and manage products' }
   ];
 
   constructor(
@@ -51,9 +50,16 @@ export class SignupComponent {
     this.errorMessage = null;
 
     this.authService.register(this.signupForm.value).subscribe({
-      next: () => {
+      next: (user) => {
         this.isLoading = false;
-        this.router.navigate(['/']);
+        const role = user?.role ? user.role.toUpperCase() : '';
+        if (role.includes('ADMIN')) {
+          this.router.navigate(['/admin/dashboard']);
+        } else if (role.includes('MERCHANT')) {
+          this.router.navigate(['/merchant/dashboard']);
+        } else {
+          this.router.navigate(['/']);
+        }
       },
       error: (err) => {
         this.isLoading = false;

@@ -1,0 +1,79 @@
+<div class="merchant-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar shadow" [class.collapsed]="isSidebarCollapsed">
+    <div class="sidebar-header d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2 brand-logo" *ngIf="!isSidebarCollapsed">
+        <mat-icon class="text-danger">storefront</mat-icon>
+        <span class="fs-5 fw-bold text-dark">Merchant Hub</span>
+      </div>
+      <mat-icon class="text-danger mx-auto" *ngIf="isSidebarCollapsed">storefront</mat-icon>
+      <button class="btn btn-icon toggle-btn d-none d-md-block" (click)="toggleSidebar()">
+        <mat-icon>{{ isSidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav mt-4">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/merchant/dashboard" routerLinkActive="active">
+            <mat-icon>bar_chart</mat-icon>
+            <span class="nav-text" *ngIf="!isSidebarCollapsed">Sales Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item mt-2">
+          <a class="nav-link" routerLink="/merchant/products" routerLinkActive="active">
+            <mat-icon>inventory_2</mat-icon>
+            <span class="nav-text" *ngIf="!isSidebarCollapsed">My Products</span>
+          </a>
+        </li>
+        <li class="nav-item mt-2">
+          <a class="nav-link" routerLink="/merchant/inventory" routerLinkActive="active">
+            <mat-icon>warehouse</mat-icon>
+            <span class="nav-text" *ngIf="!isSidebarCollapsed">Inventory</span>
+          </a>
+        </li>
+        <li class="nav-item mt-2">
+          <a class="nav-link" routerLink="/merchant/orders" routerLinkActive="active">
+            <mat-icon>shopping_bag</mat-icon>
+            <span class="nav-text" *ngIf="!isSidebarCollapsed">Order Processing</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer mt-auto p-3">
+      <button class="btn btn-logout w-100 d-flex align-items-center justify-content-center gap-2" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span *ngIf="!isSidebarCollapsed">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" [class.expanded]="isSidebarCollapsed">
+    <!-- Top Navbar -->
+    <header class="topbar shadow-sm d-flex align-items-center justify-content-between px-4">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-icon d-md-none" (click)="toggleSidebar()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <h4 class="mb-0 fw-semibold text-dark d-none d-sm-block">Seller Central</h4>
+      </div>
+      
+      <div class="user-profile d-flex align-items-center gap-3">
+        <div class="text-end d-none d-sm-block">
+          <div class="fw-semibold text-dark">{{ (authService.currentUser$ | async)?.firstName }} {{ (authService.currentUser$ | async)?.lastName }}</div>
+          <div class="small text-muted">Merchant</div>
+        </div>
+        <div class="avatar bg-dark text-white d-flex align-items-center justify-content-center rounded-circle">
+          {{ (authService.currentUser$ | async)?.firstName?.charAt(0) || 'M' }}
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content p-4">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
