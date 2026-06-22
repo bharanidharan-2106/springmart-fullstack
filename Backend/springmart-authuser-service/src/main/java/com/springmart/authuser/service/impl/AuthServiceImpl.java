@@ -40,9 +40,19 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole() != null ? request.getRole() : "Customer");
         user.setUuid(UUID.randomUUID().toString());
+        // Set status: Merchants start as PENDING, others are APPROVED
+        if ("Merchant".equals(user.getRole())) {
+            user.setStatus("PENDING");
+        } else {
+            user.setStatus("APPROVED");
+        }
 
         User savedUser = userRepository.save(user);
-        String token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole());
+
+        String token = null;
+        if (!("Merchant".equals(savedUser.getRole()) && "PENDING".equals(savedUser.getStatus()))) {
+            token = jwtUtil.generateToken(savedUser.getEmail(), savedUser.getRole());
+        }
 
         return new AuthResponse(
                 token,
@@ -50,7 +60,8 @@ public class AuthServiceImpl implements AuthService {
                 savedUser.getRole(),
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
-                savedUser.getUuid()
+                savedUser.getUuid(),
+                savedUser.getStatus()
         );
     }
 
@@ -63,6 +74,11 @@ public class AuthServiceImpl implements AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
+        // Check if merchant is approved
+        if ("Merchant".equals(user.getRole()) && !"APPROVED".equals(user.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Merchant account is pending approval");
+        }
+
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
 
         return new AuthResponse(
@@ -71,7 +87,8 @@ public class AuthServiceImpl implements AuthService {
                 user.getRole(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getUuid()
+                user.getUuid(),
+                user.getStatus()
         );
     }
 }

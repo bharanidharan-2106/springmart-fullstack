@@ -15,6 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;

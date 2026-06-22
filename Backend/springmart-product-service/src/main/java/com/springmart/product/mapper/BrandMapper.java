@@ -4,7 +4,6 @@ import com.springmart.product.dto.request.BrandRequest;
 import com.springmart.product.dto.response.BrandResponse;
 import com.springmart.product.entity.Brand;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 

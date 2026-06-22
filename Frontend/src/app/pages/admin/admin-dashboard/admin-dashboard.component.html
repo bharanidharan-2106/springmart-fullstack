@@ -42,26 +42,20 @@
           <h5 class="fw-bold mb-0">Recent Activity</h5>
         </div>
         <div class="card-body">
-          <ul class="list-unstyled mb-0">
-            <li class="d-flex mb-3 align-items-start">
-              <div class="bg-success-subtle text-success rounded-circle p-2 me-3">
-                <mat-icon>check_circle</mat-icon>
-              </div>
-              <div>
-                <p class="mb-0 fw-semibold">Vendor Approved</p>
-                <small class="text-muted">TechStore Inc. was approved</small>
-              </div>
-            </li>
+          <ul class="list-unstyled mb-0" *ngIf="pendingVendors > 0; else noActivity">
             <li class="d-flex mb-3 align-items-start">
               <div class="bg-warning-subtle text-warning rounded-circle p-2 me-3">
-                <mat-icon>warning</mat-icon>
+                <mat-icon>pending_actions</mat-icon>
               </div>
               <div>
-                <p class="mb-0 fw-semibold">Product Flagged</p>
-                <small class="text-muted">Item #4521 reported for review</small>
+                <p class="mb-0 fw-semibold">Pending Vendor Approvals</p>
+                <small class="text-muted">{{ pendingVendors }} merchant(s) awaiting review</small>
               </div>
             </li>
           </ul>
+          <ng-template #noActivity>
+            <p class="text-muted mb-0 text-center py-4">No pending activity</p>
+          </ng-template>
         </div>
       </div>
     </div>

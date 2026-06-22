@@ -54,6 +54,8 @@ export class LoginComponent {
         this.isLoading = false;
         if (err.status === 401) {
           this.errorMessage = 'Invalid email or password.';
+        } else if (err.status === 403) {
+          this.errorMessage = err.error?.message || 'Your merchant account is pending admin approval.';
         } else {
           this.errorMessage = err.error?.message || 'An error occurred during login. Please try again.';
         }

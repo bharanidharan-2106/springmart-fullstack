@@ -17,6 +17,7 @@ export class SignupComponent {
   hidePassword = true;
   isLoading = false;
   errorMessage: string | null = null;
+  successMessage: string | null = null;
   roles = [
     { value: 'Customer', label: 'Customer', icon: 'person', desc: 'Shop and track orders' },
     { value: 'Merchant', label: 'Merchant', icon: 'storefront', desc: 'Sell and manage products' }
@@ -48,11 +49,19 @@ export class SignupComponent {
 
     this.isLoading = true;
     this.errorMessage = null;
+    this.successMessage = null;
 
     this.authService.register(this.signupForm.value).subscribe({
       next: (user) => {
         this.isLoading = false;
         const role = user?.role ? user.role.toUpperCase() : '';
+
+        if (role.includes('MERCHANT') && user.status === 'PENDING') {
+          this.successMessage = 'Registration successful! Your merchant account is pending admin approval. You can sign in once approved.';
+          this.signupForm.reset({ role: 'Customer' });
+          return;
+        }
+
         if (role.includes('ADMIN')) {
           this.router.navigate(['/admin/dashboard']);
         } else if (role.includes('MERCHANT')) {

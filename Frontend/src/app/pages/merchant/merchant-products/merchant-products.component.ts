@@ -1,15 +1,69 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AuthService } from '../../../services/auth.service';
+import { ProductService, Product, Category, Brand } from '../../../services/product.service';
 
 @Component({
   selector: 'app-merchant-products',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <div class="card border-0 shadow-sm">
+    <div class="card border-0 shadow-sm mb-4">
       <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
         <h4 class="fw-bold mb-0">My Products</h4>
-        <button class="btn btn-danger">Add Product</button>
+        <button class="btn btn-primary" (click)="showAddProductForm = !showAddProductForm">
+          {{ showAddProductForm ? 'Cancel' : 'Add Product' }}
+        </button>
+      </div>
+      <div class="card-body" *ngIf="showAddProductForm">
+        <div *ngIf="errorMessage" class="alert alert-danger py-2">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="alert alert-success py-2">{{ successMessage }}</div>
+        <form [formGroup]="productForm" (ngSubmit)="onAddProduct()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Product Name</label>
+              <input type="text" formControlName="productName" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">SKU</label>
+              <input type="text" formControlName="sku" class="form-control" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Category</label>
+              <select formControlName="categoryId" class="form-select" required>
+                <option value="">Select category</option>
+                <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Brand</label>
+              <select formControlName="brandId" class="form-select" required>
+                <option value="">Select brand</option>
+                <option *ngFor="let brand of brands" [value]="brand.id">{{ brand.name }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Price</label>
+              <input type="number" formControlName="price" class="form-control" step="0.01" min="0.01" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Quantity</label>
+              <input type="number" formControlName="quantity" class="form-control" min="0" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea formControlName="description" class="form-control" rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn-success" [disabled]="productForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Adding...' : 'Add Product' }}
+          </button>
+        </form>
       </div>
       <div class="card-body">
         <p class="text-muted">Manage your product catalog, update details, or delete listings.</p>
@@ -18,28 +72,135 @@ import { CommonModule } from '@angular/common';
             <thead class="table-light">
               <tr>
                 <th>Product Name</th>
-                <th>Category</th>
+                <th>SKU</th>
                 <th>Price</th>
+                <th>Quantity</th>
                 <th>Status</th>
-                <th>Actions</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Wireless Headphones</td>
-                <td>Electronics</td>
-                <td>$99.99</td>
-                <td><span class="badge bg-success bg-opacity-10 text-success">Active</span></td>
+            <tbody *ngIf="products.length > 0; else noProducts">
+              <tr *ngFor="let product of products">
+                <td>{{ product.productName }}</td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.quantity }}</td>
                 <td>
-                  <button class="btn btn-sm btn-outline-secondary me-2">Edit</button>
-                  <button class="btn btn-sm btn-outline-danger">Delete</button>
+                  <span class="badge" [ngClass]="{
+                    'bg-success bg-opacity-10 text-success': product.active,
+                    'bg-secondary bg-opacity-10 text-secondary': !product.active
+                  }">{{ product.active ? 'Active' : 'Inactive' }}</span>
                 </td>
               </tr>
             </tbody>
+            <ng-template #noProducts>
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">No products yet. Add your first product!</td>
+              </tr>
+            </ng-template>
           </table>
         </div>
       </div>
     </div>
   `
 })
-export class MerchantProductsComponent {}
+export class MerchantProductsComponent implements OnInit {
+  products: Product[] = [];
+  categories: Category[] = [];
+  brands: Brand[] = [];
+  showAddProductForm = false;
+  isSubmitting = false;
+  errorMessage: string | null = null;
+  successMessage: string | null = null;
+  productForm: FormGroup;
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private productService: ProductService
+  ) {
+    this.productForm = this.fb.group({
+      productName: ['', Validators.required],
+      sku: ['', Validators.required],
+      categoryId: ['', Validators.required],
+      brandId: ['', Validators.required],
+      price: [null, [Validators.required, Validators.min(0.01)]],
+      quantity: [0, [Validators.required, Validators.min(0)]],
+      description: [''],
+      active: [true]
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadProducts();
+    this.loadCatalogData();
+  }
+
+  loadCatalogData(): void {
+    this.productService.getCategories().subscribe({
+      next: (response) => {
+        this.categories = response.data || [];
+      },
+      error: (err) => {
+        console.error('Error loading categories:', err);
+      }
+    });
+
+    this.productService.getBrands().subscribe({
+      next: (response) => {
+        this.brands = response.data || [];
+      },
+      error: (err) => {
+        console.error('Error loading brands:', err);
+      }
+    });
+  }
+
+  loadProducts(): void {
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser?.uuid) {
+      this.productService.getAllProductsByMerchantUuid(currentUser.uuid).subscribe({
+        next: (response) => {
+          this.products = response.data || [];
+        },
+        error: (err) => {
+          console.error('Error loading products:', err);
+        }
+      });
+    }
+  }
+
+  onAddProduct(): void {
+    if (this.productForm.invalid) {
+      return;
+    }
+
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser?.uuid) {
+      this.errorMessage = 'You must be logged in to add products.';
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.errorMessage = null;
+    this.successMessage = null;
+
+    const product: Product = {
+      ...this.productForm.value,
+      merchantUuid: currentUser.uuid
+    };
+
+    this.productService.createProduct(product).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.successMessage = 'Product added successfully!';
+        this.productForm.reset({ active: true, quantity: 0 });
+        this.showAddProductForm = false;
+        this.loadProducts();
+      },
+      error: (err) => {
+        this.isSubmitting = false;
+        this.errorMessage = err.error?.message || 'Failed to add product. Please check all fields and try again.';
+      }
+    });
+  }
+}

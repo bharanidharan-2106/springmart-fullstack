@@ -35,5 +35,41 @@ public class AuthDTOs {
         private String firstName;
         private String lastName;
         private String uuid;
+        private String status;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserResponse {
+        private Long id;
+        private String uuid;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String role;
+        private String status;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateUserStatusRequest {
+        private String status;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DashboardStatsResponse {
+        private long totalUsers;
+        private long activeVendors;
+        private long pendingVendors;
+        private long productsPending;
+        private double platformRevenue;
+        private long totalProducts;
+        private double totalSales;
+        private long activeOrders;
+        private long productsLowStock;
     }
 }

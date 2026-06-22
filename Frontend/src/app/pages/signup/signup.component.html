@@ -38,6 +38,12 @@
           <span class="small">{{ errorMessage }}</span>
         </div>
 
+        <!-- Success Alert -->
+        <div *ngIf="successMessage" class="alert alert-success border-0 d-flex align-items-center gap-2 py-3 px-4 mb-4" role="alert">
+          <mat-icon class="fs-5">check_circle</mat-icon>
+          <span class="small">{{ successMessage }}</span>
+        </div>
+
         <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="signup-form">
           <!-- First & Last Name row -->
           <div class="row g-3 mb-3">

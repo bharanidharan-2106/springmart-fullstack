@@ -29,6 +29,7 @@ public class AdminSeeder implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("admin@01"));
             admin.setRole("Admin");
             admin.setUuid(UUID.randomUUID().toString());
+            admin.setStatus("APPROVED");
             userRepository.save(admin);
             System.out.println("Default Admin user seeded: admin01@gmail.com");
         }

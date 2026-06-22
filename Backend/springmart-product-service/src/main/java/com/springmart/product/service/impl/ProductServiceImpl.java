@@ -26,6 +26,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -113,6 +114,19 @@ public class ProductServiceImpl implements ProductService {
         Pageable pageable = PageRequest.of(page, size);
         Page<Product> products = productRepository.findByBrandId(brandId, pageable);
         return mapToPagedResponse(products);
+    }
+
+    @Override
+    public PagedResponse<ProductResponse> getProductsByMerchantUuid(String merchantUuid, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Product> products = productRepository.findByMerchantUuid(merchantUuid, pageable);
+        return mapToPagedResponse(products);
+    }
+
+    @Override
+    public List<ProductResponse> getAllProductsByMerchantUuid(String merchantUuid) {
+        List<Product> products = productRepository.findByMerchantUuid(merchantUuid);
+        return productMapper.toResponseList(products);
     }
 
     @Override

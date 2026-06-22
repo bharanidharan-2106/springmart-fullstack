@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -81,6 +82,21 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         PagedResponse<ProductResponse> response = productService.getProductsByBrand(brandId, page, size);
+        return ApiResponse.success("Products fetched successfully", response);
+    }
+
+    @GetMapping("/merchant/{merchantUuid}")
+    public ApiResponse<PagedResponse<ProductResponse>> getProductsByMerchantUuid(
+            @PathVariable String merchantUuid,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        PagedResponse<ProductResponse> response = productService.getProductsByMerchantUuid(merchantUuid, page, size);
+        return ApiResponse.success("Products fetched successfully", response);
+    }
+
+    @GetMapping("/merchant/{merchantUuid}/all")
+    public ApiResponse<List<ProductResponse>> getAllProductsByMerchantUuid(@PathVariable String merchantUuid) {
+        List<ProductResponse> response = productService.getAllProductsByMerchantUuid(merchantUuid);
         return ApiResponse.success("Products fetched successfully", response);
     }
 

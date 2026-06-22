@@ -26,6 +26,9 @@ public class Product {
     @Id
     private String id;
     
+    @Indexed
+    private String merchantUuid;
+    
     private String productName;
     
     @Indexed(unique = true)

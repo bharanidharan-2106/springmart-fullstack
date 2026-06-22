@@ -17,6 +17,8 @@ import java.util.Map;
 @AllArgsConstructor
 public class ProductRequest {
 
+    private String merchantUuid;
+
     @NotBlank(message = "Product name is required")
     private String productName;
 

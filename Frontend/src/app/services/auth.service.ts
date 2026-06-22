@@ -4,12 +4,13 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 export interface UserSession {
-  token: string;
+  token: string | null;
   email: string;
   role: string;
   firstName: string;
   lastName: string;
   uuid: string;
+  status?: string;
 }
 
 @Injectable({
@@ -47,8 +48,10 @@ export class AuthService {
   register(userData: any): Observable<UserSession> {
     return this.http.post<UserSession>(`${this.baseUrl}/register`, userData).pipe(
       tap(user => {
-        localStorage.setItem('springmart_user', JSON.stringify(user));
-        this.currentUserSubject.next(user);
+        if (user.token) {
+          localStorage.setItem('springmart_user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        }
       })
     );
   }
