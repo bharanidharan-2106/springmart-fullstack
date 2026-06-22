@@ -2,6 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface AddressDTO {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+}
+
 export interface User {
   id: number;
   uuid: string;
@@ -10,6 +18,8 @@ export interface User {
   email: string;
   role: string;
   status: string;
+  phone?: string;
+  address?: AddressDTO;
 }
 
 export interface DashboardStats {
@@ -50,5 +60,13 @@ export class UserService {
 
   getDashboardStats(): Observable<DashboardStats> {
     return this.http.get<DashboardStats>(`${this.baseUrl}/dashboard/stats`);
+  }
+
+  getUserProfile(uuid: string): Observable<User> {
+    return this.http.get<User>(`${this.baseUrl}/${uuid}`);
+  }
+
+  updateProfile(uuid: string, profileData: any): Observable<User> {
+    return this.http.put<User>(`${this.baseUrl}/${uuid}/profile`, profileData);
   }
 }

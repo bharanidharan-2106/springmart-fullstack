@@ -70,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryResponse> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findByActiveTrue();
         return categoryMapper.toResponseList(categories);
     }
 }

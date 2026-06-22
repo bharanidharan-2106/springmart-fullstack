@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
+import { ProductListComponent } from './pages/products/product-list.component';
 
 // Admin Components
 import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout.component';
@@ -17,10 +18,14 @@ import { MerchantProductsComponent } from './pages/merchant/merchant-products/me
 import { MerchantInventoryComponent } from './pages/merchant/merchant-inventory/merchant-inventory.component';
 import { MerchantOrdersComponent } from './pages/merchant/merchant-orders/merchant-orders.component';
 
+import { ProfileComponent } from './pages/profile/profile.component';
+
 export const routes: Routes = [
   { path: '', component: HomeComponent },
+  { path: 'products', component: ProductListComponent },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'profile', component: ProfileComponent },
   
   // Admin Routes
   { 

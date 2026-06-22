@@ -5,39 +5,35 @@
         <h2 class="display-6 fw-bold text-dark mb-2">Trending Products</h2>
         <div class="heading-underline mt-2"></div>
       </div>
-      <a href="#" class="btn btn-outline-dark px-4 py-2 rounded-pill d-none d-md-block">View All</a>
+      <a routerLink="/products" class="btn btn-outline-dark px-4 py-2 rounded-pill d-none d-md-block">View All</a>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4" *ngIf="products.length > 0; else noProducts">
       <div class="col-12 col-md-6 col-lg-3" *ngFor="let product of products">
         <div class="product-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-          <div class="badge bg-danger position-absolute top-0 start-0 m-3 z-1 rounded-pill px-3 py-2">Sale</div>
           <div class="image-wrapper position-relative overflow-hidden bg-light p-4 text-center">
-            <img [src]="product.image" [alt]="product.name" class="img-fluid product-img transition-all" />
-            <div class="card-actions position-absolute top-0 end-0 m-3 d-flex flex-column gap-2">
-              <button class="btn btn-light rounded-circle shadow-sm p-2 d-flex align-items-center justify-content-center text-muted hover-danger">
-                <mat-icon>favorite_border</mat-icon>
-              </button>
-            </div>
+            <img [src]="productService.getProductImage(product)" [alt]="product.productName" class="img-fluid product-img transition-all" />
           </div>
           <div class="card-body p-4 d-flex flex-column">
-            <div class="d-flex align-items-center mb-2">
+            <div class="d-flex align-items-center mb-2" *ngIf="product.averageRating">
               <div class="stars text-warning d-flex">
-                <mat-icon *ngFor="let star of getStars(product.rating)" class="star-icon">star</mat-icon>
-                <mat-icon *ngIf="hasHalfStar(product.rating)" class="star-icon">star_half</mat-icon>
+                <mat-icon *ngFor="let star of getStars(product.averageRating || 0)" class="star-icon">star</mat-icon>
+                <mat-icon *ngIf="hasHalfStar(product.averageRating || 0)" class="star-icon">star_half</mat-icon>
               </div>
-              <span class="text-muted ms-2 small">({{product.rating}})</span>
+              <span class="text-muted ms-2 small">({{ product.averageRating }})</span>
             </div>
-            <h3 class="h6 fw-bold text-dark mb-2 text-truncate">{{product.name}}</h3>
+            <h3 class="h6 fw-bold text-dark mb-1 text-truncate">{{ product.productName }}</h3>
+            <p class="text-muted small mb-2">{{ product.brandName }}</p>
             <div class="mt-auto d-flex justify-content-between align-items-center pt-3">
-              <span class="fs-5 fw-bold text-dark">${{product.price | number:'1.2-2'}}</span>
-              <button class="btn btn-add-to-cart rounded-circle d-flex align-items-center justify-content-center p-2 shadow-sm">
-                <mat-icon>add_shopping_cart</mat-icon>
-              </button>
+              <span class="fs-5 fw-bold text-dark">{{ product.price | currency }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <ng-template #noProducts>
+      <p class="text-center text-muted py-4 mb-0">No products available yet. Check back soon!</p>
+    </ng-template>
   </div>
 </section>

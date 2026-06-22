@@ -67,6 +67,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return false;
     }
 
+    @SuppressWarnings("null")
     private Mono<Void> unauthorized(ServerWebExchange exchange, String message) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);

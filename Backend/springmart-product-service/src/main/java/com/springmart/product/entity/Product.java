@@ -46,6 +46,8 @@ public class Product {
     
     @Indexed
     private String brandId;
+
+    private String brandName;
     
     private BigDecimal price;
     

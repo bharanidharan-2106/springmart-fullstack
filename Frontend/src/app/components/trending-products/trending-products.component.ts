@@ -1,31 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { ProductService, Product } from '../../services/product.service';
 
 @Component({
   selector: 'app-trending-products',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, RouterLink, MatIconModule],
   templateUrl: './trending-products.component.html',
   styleUrl: './trending-products.component.scss'
 })
-export class TrendingProductsComponent {
-  products = [
-    { name: 'iPhone 16 Pro Max', price: 1199.00, rating: 5, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=iPhone+16' },
-    { name: 'Samsung Galaxy S25', price: 1099.00, rating: 4.5, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=Galaxy+S25' },
-    { name: 'MacBook Pro M3', price: 1999.00, rating: 5, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=MacBook+Pro' },
-    { name: 'Nike Air Max 2026', price: 150.00, rating: 4, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=Nike+Shoes' },
-    { name: 'Apple Watch Ultra', price: 799.00, rating: 4.5, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=Smart+Watch' },
-    { name: 'Sony WH-1000XM6', price: 349.00, rating: 5, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=Headphones' },
-    { name: 'Logitech G Pro X Superlight', price: 159.00, rating: 4.5, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=Gaming+Mouse' },
-    { name: 'JBL Charge 6', price: 179.00, rating: 4, image: 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=Bluetooth+Speaker' }
-  ];
+export class TrendingProductsComponent implements OnInit {
+  products: Product[] = [];
+
+  constructor(public productService: ProductService) {}
+
+  ngOnInit(): void {
+    this.productService.getAllProducts(0, 8).subscribe({
+      next: (response) => {
+        this.products = response.data?.content || [];
+      },
+      error: (err) => {
+        console.error('Error loading trending products:', err);
+      }
+    });
+  }
 
   getStars(rating: number): number[] {
-    return Array(Math.floor(rating)).fill(0);
+    return Array(Math.floor(rating || 0)).fill(0);
   }
 
   hasHalfStar(rating: number): boolean {
-    return rating % 1 !== 0;
+    return (rating || 0) % 1 !== 0;
   }
 }

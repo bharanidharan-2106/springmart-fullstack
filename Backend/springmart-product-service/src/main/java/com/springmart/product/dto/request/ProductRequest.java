@@ -1,6 +1,7 @@
 package com.springmart.product.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -22,7 +23,6 @@ public class ProductRequest {
     @NotBlank(message = "Product name is required")
     private String productName;
 
-    @NotBlank(message = "SKU is required")
     private String sku;
 
     private String shortDescription;
@@ -32,8 +32,10 @@ public class ProductRequest {
     @NotBlank(message = "Category ID is required")
     private String categoryId;
 
-    @NotBlank(message = "Brand ID is required")
     private String brandId;
+
+    @NotBlank(message = "Brand name is required")
+    private String brandName;
 
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be positive")
@@ -46,6 +48,7 @@ public class ProductRequest {
     @PositiveOrZero(message = "Quantity cannot be negative")
     private Integer quantity;
 
+    @NotEmpty(message = "At least one product image is required")
     private List<String> productImages;
 
     private Map<String, String> specifications;

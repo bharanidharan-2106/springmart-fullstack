@@ -7,7 +7,9 @@
     
     <div class="row g-4">
       <div class="col-6 col-md-4 col-lg-2" *ngFor="let category of categories">
-        <a href="#" class="category-card text-decoration-none d-block bg-white rounded-4 p-4 text-center shadow-sm">
+        <a [routerLink]="['/products']"
+           [queryParams]="{ categoryId: category.id, categoryName: category.name }"
+           class="category-card text-decoration-none d-block bg-white rounded-4 p-4 text-center shadow-sm">
           <div class="icon-wrapper mb-3 mx-auto d-flex align-items-center justify-content-center rounded-circle">
             <mat-icon class="category-icon">{{category.icon}}</mat-icon>
           </div>

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../../services/auth.service';
-import { ProductService, Product, Category, Brand } from '../../../services/product.service';
+import { ProductService, Product, Category, CreateProductRequest } from '../../../services/product.service';
 
 @Component({
   selector: 'app-merchant-products',
@@ -26,41 +26,41 @@ import { ProductService, Product, Category, Brand } from '../../../services/prod
               <input type="text" formControlName="productName" class="form-control" required>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">SKU</label>
-              <input type="text" formControlName="sku" class="form-control" required>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
               <label class="form-label">Category</label>
               <select formControlName="categoryId" class="form-select" required>
                 <option value="">Select category</option>
                 <option *ngFor="let category of categories" [value]="category.id">{{ category.name }}</option>
               </select>
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Brand</label>
-              <select formControlName="brandId" class="form-select" required>
-                <option value="">Select brand</option>
-                <option *ngFor="let brand of brands" [value]="brand.id">{{ brand.name }}</option>
-              </select>
-            </div>
           </div>
           <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Brand</label>
+              <input type="text" formControlName="brandName" class="form-control" placeholder="Enter your brand name" required>
+            </div>
             <div class="col-md-6 mb-3">
               <label class="form-label">Price</label>
               <input type="number" formControlName="price" class="form-control" step="0.01" min="0.01" required>
             </div>
+          </div>
+          <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">Quantity</label>
               <input type="number" formControlName="quantity" class="form-control" min="0" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Product Photo</label>
+              <input type="file" class="form-control" accept="image/*" (change)="onImageSelected($event)">
+              <div *ngIf="imagePreview" class="mt-2">
+                <img [src]="imagePreview" alt="Preview" class="img-thumbnail" style="max-height: 120px;">
+              </div>
             </div>
           </div>
           <div class="mb-3">
             <label class="form-label">Description</label>
             <textarea formControlName="description" class="form-control" rows="3"></textarea>
           </div>
-          <button type="submit" class="btn btn-success" [disabled]="productForm.invalid || isSubmitting">
+          <button type="submit" class="btn btn-success" [disabled]="productForm.invalid || isSubmitting || !imagePreview">
             {{ isSubmitting ? 'Adding...' : 'Add Product' }}
           </button>
         </form>
@@ -71,8 +71,9 @@ import { ProductService, Product, Category, Brand } from '../../../services/prod
           <table class="table table-hover align-middle">
             <thead class="table-light">
               <tr>
+                <th>Photo</th>
                 <th>Product Name</th>
-                <th>SKU</th>
+                <th>Brand</th>
                 <th>Price</th>
                 <th>Quantity</th>
                 <th>Status</th>
@@ -80,8 +81,11 @@ import { ProductService, Product, Category, Brand } from '../../../services/prod
             </thead>
             <tbody *ngIf="products.length > 0; else noProducts">
               <tr *ngFor="let product of products">
+                <td>
+                  <img [src]="productService.getProductImage(product)" alt="" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                </td>
                 <td>{{ product.productName }}</td>
-                <td>{{ product.sku }}</td>
+                <td>{{ product.brandName }}</td>
                 <td>{{ product.price }}</td>
                 <td>{{ product.quantity }}</td>
                 <td>
@@ -94,7 +98,7 @@ import { ProductService, Product, Category, Brand } from '../../../services/prod
             </tbody>
             <ng-template #noProducts>
               <tr>
-                <td colspan="5" class="text-center text-muted py-4">No products yet. Add your first product!</td>
+                <td colspan="6" class="text-center text-muted py-4">No products yet. Add your first product!</td>
               </tr>
             </ng-template>
           </table>
@@ -106,23 +110,22 @@ import { ProductService, Product, Category, Brand } from '../../../services/prod
 export class MerchantProductsComponent implements OnInit {
   products: Product[] = [];
   categories: Category[] = [];
-  brands: Brand[] = [];
   showAddProductForm = false;
   isSubmitting = false;
   errorMessage: string | null = null;
   successMessage: string | null = null;
+  imagePreview: string | null = null;
   productForm: FormGroup;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private productService: ProductService
+    public productService: ProductService
   ) {
     this.productForm = this.fb.group({
       productName: ['', Validators.required],
-      sku: ['', Validators.required],
       categoryId: ['', Validators.required],
-      brandId: ['', Validators.required],
+      brandName: ['', Validators.required],
       price: [null, [Validators.required, Validators.min(0.01)]],
       quantity: [0, [Validators.required, Validators.min(0)]],
       description: [''],
@@ -132,25 +135,16 @@ export class MerchantProductsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
-    this.loadCatalogData();
+    this.loadCategories();
   }
 
-  loadCatalogData(): void {
+  loadCategories(): void {
     this.productService.getCategories().subscribe({
       next: (response) => {
         this.categories = response.data || [];
       },
       error: (err) => {
         console.error('Error loading categories:', err);
-      }
-    });
-
-    this.productService.getBrands().subscribe({
-      next: (response) => {
-        this.brands = response.data || [];
-      },
-      error: (err) => {
-        console.error('Error loading brands:', err);
       }
     });
   }
@@ -169,8 +163,29 @@ export class MerchantProductsComponent implements OnInit {
     }
   }
 
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      this.errorMessage = 'Image must be smaller than 2MB.';
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+      this.errorMessage = null;
+    };
+    reader.readAsDataURL(file);
+  }
+
   onAddProduct(): void {
-    if (this.productForm.invalid) {
+    if (this.productForm.invalid || !this.imagePreview) {
       return;
     }
 
@@ -184,9 +199,16 @@ export class MerchantProductsComponent implements OnInit {
     this.errorMessage = null;
     this.successMessage = null;
 
-    const product: Product = {
-      ...this.productForm.value,
-      merchantUuid: currentUser.uuid
+    const product: CreateProductRequest = {
+      productName: this.productForm.value.productName,
+      categoryId: this.productForm.value.categoryId,
+      brandName: this.productForm.value.brandName,
+      price: this.productForm.value.price,
+      quantity: this.productForm.value.quantity,
+      description: this.productForm.value.description,
+      productImages: [this.imagePreview],
+      merchantUuid: currentUser.uuid,
+      active: true
     };
 
     this.productService.createProduct(product).subscribe({
@@ -194,6 +216,7 @@ export class MerchantProductsComponent implements OnInit {
         this.isSubmitting = false;
         this.successMessage = 'Product added successfully!';
         this.productForm.reset({ active: true, quantity: 0 });
+        this.imagePreview = null;
         this.showAddProductForm = false;
         this.loadProducts();
       },

@@ -1,35 +1,53 @@
 package com.springmart.product.config;
 
-import com.springmart.product.entity.Brand;
 import com.springmart.product.entity.Category;
-import com.springmart.product.repository.BrandRepository;
 import com.springmart.product.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CatalogSeeder implements CommandLineRunner {
 
+    private static final List<String> REQUIRED_CATEGORIES = List.of(
+            "Electronics",
+            "Fashion",
+            "Home Appliances",
+            "Books",
+            "Sports",
+            "Groceries"
+    );
+
     private final CategoryRepository categoryRepository;
-    private final BrandRepository brandRepository;
 
     @Override
+    @SuppressWarnings("null")
     public void run(String... args) {
-        if (categoryRepository.count() == 0) {
-            categoryRepository.save(Category.builder().name("Electronics").description("Electronic devices and accessories").active(true).build());
-            categoryRepository.save(Category.builder().name("Clothing").description("Apparel and fashion").active(true).build());
-            categoryRepository.save(Category.builder().name("Home & Garden").description("Home improvement and garden supplies").active(true).build());
-            log.info("Seeded default product categories");
+        for (String name : REQUIRED_CATEGORIES) {
+            categoryRepository.findByName(name).orElseGet(() -> {
+                Category saved = categoryRepository.save(
+                        Category.builder()
+                                .name(name)
+                                .description(name + " products")
+                                .active(true)
+                                .build()
+                );
+                log.info("Seeded category: {}", name);
+                return saved;
+            });
         }
 
-        if (brandRepository.count() == 0) {
-            brandRepository.save(Brand.builder().name("Generic").description("Generic brand").active(true).build());
-            brandRepository.save(Brand.builder().name("SpringMart Select").description("SpringMart house brand").active(true).build());
-            log.info("Seeded default product brands");
-        }
+        categoryRepository.findAll().forEach(category -> {
+            if (!REQUIRED_CATEGORIES.contains(category.getName()) && category.isActive()) {
+                category.setActive(false);
+                categoryRepository.save(category);
+                log.info("Deactivated legacy category: {}", category.getName());
+            }
+        });
     }
 }

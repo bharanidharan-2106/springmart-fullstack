@@ -49,6 +49,8 @@ public class AuthDTOs {
         private String email;
         private String role;
         private String status;
+        private String phone;
+        private AddressDTO address;
     }
 
     @Data
@@ -56,6 +58,27 @@ public class AuthDTOs {
     @AllArgsConstructor
     public static class UpdateUserStatusRequest {
         private String status;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AddressDTO {
+        private String street;
+        private String city;
+        private String state;
+        private String country;
+        private String zipCode;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateProfileRequest {
+        private String firstName;
+        private String lastName;
+        private String phone;
+        private AddressDTO address;
     }
 
     @Data

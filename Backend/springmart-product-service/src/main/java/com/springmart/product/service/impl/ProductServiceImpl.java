@@ -5,6 +5,8 @@ import com.springmart.product.dto.request.StatusUpdateRequest;
 import com.springmart.product.dto.request.StockUpdateRequest;
 import com.springmart.product.dto.response.PagedResponse;
 import com.springmart.product.dto.response.ProductResponse;
+import com.springmart.product.entity.Brand;
+import com.springmart.product.entity.Category;
 import com.springmart.product.entity.Product;
 import com.springmart.product.enums.ProductStatus;
 import com.springmart.product.exception.DuplicateResourceException;
@@ -20,9 +22,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,21 +41,25 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse createProduct(ProductRequest request) {
-        if (productRepository.existsBySku(request.getSku())) {
-            throw new DuplicateResourceException("Product already exists with SKU: " + request.getSku());
-        }
-        
-        validateCategoryAndBrand(request.getCategoryId(), request.getBrandId());
+        validateCategory(request.getCategoryId());
 
+        String sku = StringUtils.hasText(request.getSku()) ? request.getSku() : generateSku();
+        if (productRepository.existsBySku(sku)) {
+            throw new DuplicateResourceException("Product already exists with SKU: " + sku);
+        }
+
+        Brand brand = resolveBrand(request.getBrandName());
         Product product = productMapper.toEntity(request);
-        // Default values for new product
-        product.setStatus(ProductStatus.DRAFT);
+        product.setSku(sku);
+        product.setBrandId(brand.getId());
+        product.setBrandName(brand.getName());
+        product.setStatus(ProductStatus.APPROVED);
         product.setAverageRating(0.0);
         product.setReviewCount(0);
         product.setSlug(generateSlug(request.getProductName()));
 
         Product savedProduct = productRepository.save(product);
-        return productMapper.toResponse(savedProduct);
+        return enrichResponse(savedProduct);
     }
 
     @Override
@@ -58,17 +67,25 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
 
-        if (!product.getSku().equals(request.getSku()) && productRepository.existsBySku(request.getSku())) {
+        validateCategory(request.getCategoryId());
+
+        if (StringUtils.hasText(request.getSku())
+                && !product.getSku().equals(request.getSku())
+                && productRepository.existsBySku(request.getSku())) {
             throw new DuplicateResourceException("Product already exists with SKU: " + request.getSku());
         }
 
-        validateCategoryAndBrand(request.getCategoryId(), request.getBrandId());
-
+        Brand brand = resolveBrand(request.getBrandName());
         productMapper.updateEntityFromRequest(request, product);
+        if (StringUtils.hasText(request.getSku())) {
+            product.setSku(request.getSku());
+        }
+        product.setBrandId(brand.getId());
+        product.setBrandName(brand.getName());
         product.setSlug(generateSlug(request.getProductName()));
-        
+
         Product updatedProduct = productRepository.save(product);
-        return productMapper.toResponse(updatedProduct);
+        return enrichResponse(updatedProduct);
     }
 
     @Override
@@ -83,14 +100,14 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse getProductById(String id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
-        return productMapper.toResponse(product);
+        return enrichResponse(product);
     }
 
     @Override
     public ProductResponse getProductBySku(String sku) {
         Product product = productRepository.findBySku(sku)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with SKU: " + sku));
-        return productMapper.toResponse(product);
+        return enrichResponse(product);
     }
 
     @Override
@@ -126,12 +143,21 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponse> getAllProductsByMerchantUuid(String merchantUuid) {
         List<Product> products = productRepository.findByMerchantUuid(merchantUuid);
-        return productMapper.toResponseList(products);
+        return products.stream().map(this::enrichResponse).collect(Collectors.toList());
     }
 
     @Override
     public PagedResponse<ProductResponse> searchProducts(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+        List<Category> matchingCategories = categoryRepository.findByNameContainingIgnoreCase(keyword);
+        if (!matchingCategories.isEmpty()) {
+            List<String> categoryIds = matchingCategories.stream().map(Category::getId).collect(Collectors.toList());
+            Page<Product> categoryProducts = productRepository.findByCategoryIdIn(categoryIds, pageable);
+            if (categoryProducts.hasContent()) {
+                return mapToPagedResponse(categoryProducts);
+            }
+        }
+
         Page<Product> products = productRepository.searchByKeyword(keyword, pageable);
         return mapToPagedResponse(products);
     }
@@ -149,7 +175,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
         product.setQuantity(request.getQuantity());
         Product updatedProduct = productRepository.save(product);
-        return productMapper.toResponse(updatedProduct);
+        return enrichResponse(updatedProduct);
     }
 
     @Override
@@ -158,25 +184,60 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
         product.setStatus(request.getStatus());
         Product updatedProduct = productRepository.save(product);
-        return productMapper.toResponse(updatedProduct);
+        return enrichResponse(updatedProduct);
     }
 
-    private void validateCategoryAndBrand(String categoryId, String brandId) {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
+    private void validateCategory(String categoryId) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+        if (!category.isActive()) {
+            throw new ResourceNotFoundException("Category is not available: " + category.getName());
         }
-        if (!brandRepository.existsById(brandId)) {
-            throw new ResourceNotFoundException("Brand not found with id: " + brandId);
+    }
+
+    private Brand resolveBrand(String brandName) {
+        if (!StringUtils.hasText(brandName)) {
+            throw new ResourceNotFoundException("Brand name is required");
         }
+
+        String normalizedName = brandName.trim();
+        return brandRepository.findByName(normalizedName).orElseGet(() ->
+                brandRepository.save(Brand.builder()
+                        .name(normalizedName)
+                        .description("Merchant brand")
+                        .active(true)
+                        .build())
+        );
+    }
+
+    private String generateSku() {
+        return "SM-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
     private String generateSlug(String productName) {
-        if (productName == null) return "";
+        if (productName == null) {
+            return "";
+        }
         return productName.toLowerCase().replaceAll("[^a-z0-9\\s-]", "").replaceAll("\\s+", "-");
     }
 
+    private ProductResponse enrichResponse(Product product) {
+        ProductResponse response = productMapper.toResponse(product);
+        categoryRepository.findById(product.getCategoryId())
+                .ifPresent(category -> response.setCategoryName(category.getName()));
+        if (StringUtils.hasText(product.getBrandName())) {
+            response.setBrandName(product.getBrandName());
+        } else {
+            brandRepository.findById(product.getBrandId())
+                    .ifPresent(brand -> response.setBrandName(brand.getName()));
+        }
+        return response;
+    }
+
     private PagedResponse<ProductResponse> mapToPagedResponse(Page<Product> page) {
-        List<ProductResponse> content = productMapper.toResponseList(page.getContent());
+        List<ProductResponse> content = page.getContent().stream()
+                .map(this::enrichResponse)
+                .collect(Collectors.toList());
         return PagedResponse.<ProductResponse>builder()
                 .content(content)
                 .pageNo(page.getNumber())

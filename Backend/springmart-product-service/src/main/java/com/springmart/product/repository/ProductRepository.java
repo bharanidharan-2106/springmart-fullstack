@@ -26,7 +26,13 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     List<Product> findByMerchantUuid(String merchantUuid);
 
-    @Query("{ '$or': [ { 'productName': { $regex: ?0, $options: 'i' } }, { 'description': { $regex: ?0, $options: 'i' } } ] }")
+    Page<Product> findByCategoryIdIn(List<String> categoryIds, Pageable pageable);
+
+    @Query("{ '$or': [ " +
+            "{ 'productName': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'description': { $regex: ?0, $options: 'i' } }, " +
+            "{ 'brandName': { $regex: ?0, $options: 'i' } } " +
+            "] }")
     Page<Product> searchByKeyword(String keyword, Pageable pageable);
 
     @Query("{ 'price': { $gte: ?0, $lte: ?1 } }")

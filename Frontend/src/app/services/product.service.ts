@@ -3,15 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Product {
-  id: string;
+  id?: string;
   merchantUuid?: string;
   productName: string;
-  sku: string;
+  sku?: string;
   slug?: string;
   shortDescription?: string;
   description?: string;
   categoryId: string;
-  brandId: string;
+  categoryName?: string;
+  brandId?: string;
+  brandName?: string;
   price: number;
   discountedPrice?: number;
   quantity: number;
@@ -25,19 +27,24 @@ export interface Product {
   updatedAt?: string;
 }
 
+export interface CreateProductRequest {
+  merchantUuid?: string;
+  productName: string;
+  categoryId: string;
+  brandName: string;
+  price: number;
+  quantity: number;
+  description?: string;
+  productImages: string[];
+  active?: boolean;
+}
+
 export interface ApiResponse<T> {
   message: string;
   data: T;
 }
 
 export interface Category {
-  id: string;
-  name: string;
-  description?: string;
-  active?: boolean;
-}
-
-export interface Brand {
   id: string;
   name: string;
   description?: string;
@@ -58,14 +65,15 @@ export interface PagedResponse<T> {
 })
 export class ProductService {
   private baseUrl = 'http://localhost:8080/api/products';
+  private categoriesUrl = 'http://localhost:8080/api/categories';
 
   constructor(private http: HttpClient) { }
 
-  createProduct(product: Product): Observable<ApiResponse<Product>> {
+  createProduct(product: CreateProductRequest): Observable<ApiResponse<Product>> {
     return this.http.post<ApiResponse<Product>>(this.baseUrl, product);
   }
 
-  updateProduct(id: string, product: Product): Observable<ApiResponse<Product>> {
+  updateProduct(id: string, product: CreateProductRequest): Observable<ApiResponse<Product>> {
     return this.http.put<ApiResponse<Product>>(`${this.baseUrl}/${id}`, product);
   }
 
@@ -85,11 +93,26 @@ export class ProductService {
     return this.http.get<ApiResponse<Product[]>>(`${this.baseUrl}/merchant/${merchantUuid}/all`);
   }
 
-  getCategories(): Observable<ApiResponse<Category[]>> {
-    return this.http.get<ApiResponse<Category[]>>('http://localhost:8080/api/categories');
+  getAllProducts(page: number = 0, size: number = 12): Observable<ApiResponse<PagedResponse<Product>>> {
+    return this.http.get<ApiResponse<PagedResponse<Product>>>(`${this.baseUrl}?page=${page}&size=${size}`);
   }
 
-  getBrands(): Observable<ApiResponse<Brand[]>> {
-    return this.http.get<ApiResponse<Brand[]>>('http://localhost:8080/api/brands');
+  getProductsByCategory(categoryId: string, page: number = 0, size: number = 12): Observable<ApiResponse<PagedResponse<Product>>> {
+    return this.http.get<ApiResponse<PagedResponse<Product>>>(`${this.baseUrl}/category/${categoryId}?page=${page}&size=${size}`);
+  }
+
+  searchProducts(keyword: string, page: number = 0, size: number = 12): Observable<ApiResponse<PagedResponse<Product>>> {
+    return this.http.get<ApiResponse<PagedResponse<Product>>>(`${this.baseUrl}/search?keyword=${encodeURIComponent(keyword)}&page=${page}&size=${size}`);
+  }
+
+  getCategories(): Observable<ApiResponse<Category[]>> {
+    return this.http.get<ApiResponse<Category[]>>(this.categoriesUrl);
+  }
+
+  getProductImage(product: Product): string {
+    if (product.productImages && product.productImages.length > 0) {
+      return product.productImages[0];
+    }
+    return 'https://placehold.co/400x400/F5F5F5/1A1A1A?text=No+Image';
   }
 }

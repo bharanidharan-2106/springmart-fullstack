@@ -61,6 +61,11 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
+  updateCurrentUser(user: UserSession): void {
+    localStorage.setItem('springmart_user', JSON.stringify(user));
+    this.currentUserSubject.next(user);
+  }
+
   isAuthenticated(): boolean {
     return this.currentUserValue !== null;
   }

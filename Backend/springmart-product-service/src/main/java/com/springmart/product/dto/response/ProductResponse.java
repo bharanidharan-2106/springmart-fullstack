@@ -24,7 +24,9 @@ public class ProductResponse {
     private String shortDescription;
     private String description;
     private String categoryId;
+    private String categoryName;
     private String brandId;
+    private String brandName;
     private BigDecimal price;
     private BigDecimal discountedPrice;
     private Integer quantity;

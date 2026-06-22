@@ -14,6 +14,8 @@
           type="text" 
           class="form-control search-input" 
           placeholder="Search for products, brands and categories..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
         />
       </div>
     </div>
@@ -26,12 +28,31 @@
       </ng-container>
       <ng-template #userSessionTemplate>
         <div class="d-flex align-items-center gap-3">
-          <div class="user-info-badge d-flex align-items-center gap-2 px-3 py-2 bg-light border rounded-pill">
-            <mat-icon class="text-danger fs-5 d-flex align-items-center">account_circle</mat-icon>
-            <span class="user-name text-dark fw-semibold small">Hi, {{ currentUser?.firstName }}</span>
-            <span class="badge bg-dark text-white rounded-pill px-2 py-1" style="font-size: 0.7rem;">{{ currentUser?.role }}</span>
+          <div class="user-profile-menu" [matMenuTriggerFor]="profileMenu" style="cursor: pointer;">
+            <div class="d-flex align-items-center gap-2 px-2 py-1 bg-light border rounded-pill transition-all">
+              <div class="avatar bg-primary text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 35px; height: 35px; font-weight: 600;">
+                {{ currentUser?.firstName?.charAt(0) || 'U' }}
+              </div>
+              <span class="badge bg-dark text-white rounded-pill px-2 py-1 d-none d-sm-inline-block" style="font-size: 0.7rem;">{{ currentUser?.role }}</span>
+              <mat-icon class="text-muted small">expand_more</mat-icon>
+            </div>
           </div>
-          <button class="btn btn-login py-2 px-3 border border-dark" (click)="logout()">Logout</button>
+          
+          <mat-menu #profileMenu="matMenu" class="rounded-3 shadow-lg">
+            <div class="px-4 py-3 border-bottom text-center" style="min-width: 200px;">
+              <h6 class="mb-1 fw-bold">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h6>
+              <p class="text-muted small mb-0">{{ currentUser?.email }}</p>
+            </div>
+            <a mat-menu-item routerLink="/profile">
+              <mat-icon class="text-primary">person</mat-icon>
+              <span>My Profile</span>
+            </a>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="logout()" class="text-danger">
+              <mat-icon class="text-danger">logout</mat-icon>
+              <span>Logout</span>
+            </button>
+          </mat-menu>
         </div>
       </ng-template>
     </div>

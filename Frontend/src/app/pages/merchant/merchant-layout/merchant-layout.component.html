@@ -65,9 +65,28 @@
           <div class="fw-semibold text-dark">{{ (authService.currentUser$ | async)?.firstName }} {{ (authService.currentUser$ | async)?.lastName }}</div>
           <div class="small text-muted">Merchant</div>
         </div>
-        <div class="avatar bg-dark text-white d-flex align-items-center justify-content-center rounded-circle">
-          {{ (authService.currentUser$ | async)?.firstName?.charAt(0) || 'M' }}
+        
+        <div class="user-profile-menu cursor-pointer" [matMenuTriggerFor]="profileMenu">
+          <div class="avatar bg-dark text-white d-flex align-items-center justify-content-center rounded-circle shadow-sm" style="width: 40px; height: 40px; font-weight: 600; cursor: pointer;">
+            {{ (authService.currentUser$ | async)?.firstName?.charAt(0) || 'M' }}
+          </div>
         </div>
+        
+        <mat-menu #profileMenu="matMenu" class="rounded-3 shadow-lg">
+          <div class="px-4 py-3 border-bottom text-center" style="min-width: 200px;">
+            <h6 class="mb-1 fw-bold">{{ (authService.currentUser$ | async)?.firstName }} {{ (authService.currentUser$ | async)?.lastName }}</h6>
+            <p class="text-muted small mb-0">{{ (authService.currentUser$ | async)?.email }}</p>
+          </div>
+          <a mat-menu-item routerLink="/profile">
+            <mat-icon class="text-primary">person</mat-icon>
+            <span>My Profile</span>
+          </a>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="logout()" class="text-danger">
+            <mat-icon class="text-danger">logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
       </div>
     </header>
 

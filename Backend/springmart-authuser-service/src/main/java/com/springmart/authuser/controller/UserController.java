@@ -2,8 +2,11 @@ package com.springmart.authuser.controller;
 
 import com.springmart.authuser.dto.AuthDTOs.DashboardStatsResponse;
 import com.springmart.authuser.dto.AuthDTOs.UpdateUserStatusRequest;
+import com.springmart.authuser.dto.AuthDTOs.UpdateProfileRequest;
+import com.springmart.authuser.dto.AuthDTOs.AddressDTO;
 import com.springmart.authuser.dto.AuthDTOs.UserResponse;
 import com.springmart.authuser.entity.User;
+import com.springmart.authuser.entity.UserAddress;
 import com.springmart.authuser.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +54,39 @@ public class UserController {
         return toUserResponse(savedUser);
     }
 
+    @GetMapping("/{uuid}")
+    public UserResponse getUserByUuid(@PathVariable String uuid) {
+        User user = userRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return toUserResponse(user);
+    }
+
+    @PutMapping("/{uuid}/profile")
+    public UserResponse updateProfile(@PathVariable String uuid, @RequestBody UpdateProfileRequest request) {
+        User user = userRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPhone(request.getPhone());
+
+        if (request.getAddress() != null) {
+            UserAddress address = user.getAddress();
+            if (address == null) {
+                address = new UserAddress();
+            }
+            address.setStreet(request.getAddress().getStreet());
+            address.setCity(request.getAddress().getCity());
+            address.setState(request.getAddress().getState());
+            address.setCountry(request.getAddress().getCountry());
+            address.setZipCode(request.getAddress().getZipCode());
+            user.setAddress(address);
+        }
+
+        User savedUser = userRepository.save(user);
+        return toUserResponse(savedUser);
+    }
+
     @GetMapping("/dashboard/stats")
     public DashboardStatsResponse getDashboardStats() {
         long totalUsers = userRepository.count();
@@ -70,6 +106,16 @@ public class UserController {
     }
 
     private UserResponse toUserResponse(User user) {
+        AddressDTO addressDTO = null;
+        if (user.getAddress() != null) {
+            addressDTO = new AddressDTO(
+                    user.getAddress().getStreet(),
+                    user.getAddress().getCity(),
+                    user.getAddress().getState(),
+                    user.getAddress().getCountry(),
+                    user.getAddress().getZipCode()
+            );
+        }
         return new UserResponse(
                 user.getId(),
                 user.getUuid(),
@@ -77,7 +123,9 @@ public class UserController {
                 user.getLastName(),
                 user.getEmail(),
                 user.getRole(),
-                user.getStatus()
+                user.getStatus(),
+                user.getPhone(),
+                addressDTO
         );
     }
 }
