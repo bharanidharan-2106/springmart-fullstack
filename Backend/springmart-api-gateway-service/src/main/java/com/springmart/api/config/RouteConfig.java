@@ -12,7 +12,6 @@ RouteLocator routes(RouteLocatorBuilder b) {
 			.route("product",r->r.path("/api/products/**").uri("lb://SPRINGMART-PRODUCT-SERVICE"))
 			.route("categories",r->r.path("/api/categories/**").uri("lb://SPRINGMART-PRODUCT-SERVICE"))
 			.route("brands",r->r.path("/api/brands/**").uri("lb://SPRINGMART-PRODUCT-SERVICE"))
-			.route("search",r->r.path("/api/search/**").uri("lb://SPRINGMART-SEARCH-SERVICE"))
 			.route("cart",r->r.path("/cart/**").uri("lb://SPRINGMART-CART-SERVICE"))
 			.route("order",r->r.path("/orders/**").uri("lb://SPRINGMART-ORDER-SERVICE"))
 			.build();

@@ -5,6 +5,11 @@ spring:
     name: SPRINGMART-API-GATEWAY
   cloud:
     gateway:
+      routes:
+        - id: cart-service
+          uri: lb://SPRINGMART-CART-SERVICE
+          predicates:
+            - Path=/api/cart/**
       discovery:
         locator:
           enabled: true

@@ -3,6 +3,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { SignupComponent } from './pages/signup/signup.component';
 import { ProductListComponent } from './pages/products/product-list.component';
+import { CartPageComponent } from './pages/cart/cart-page.component';
 
 // Admin Components
 import { AdminLayoutComponent } from './pages/admin/admin-layout/admin-layout.component';
@@ -26,6 +27,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'cart', component: CartPageComponent },
   
   // Admin Routes
   { 

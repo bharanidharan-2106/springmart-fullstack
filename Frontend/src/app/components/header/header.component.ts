@@ -8,10 +8,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { AuthService, UserSession } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 
+import { CartIconComponent } from '../cart-icon/cart-icon.component';
+
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatIconModule, FormsModule, MatMenuModule, MatDividerModule],
+  imports: [CommonModule, RouterLink, MatIconModule, FormsModule, MatMenuModule, MatDividerModule, CartIconComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
